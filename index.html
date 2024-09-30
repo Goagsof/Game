@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arcade de Juegos</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Arcade de Juegos</h1>
+  </header>
+  
+  <main>
+    <section class="search-section">
+      <input type="text" id="search" placeholder="Buscar juego...">
+    </section>
+
+    <section class="game-menu" id="game-menu">
+      <!-- Tarjeta de Conecta 4 -->
+      <div class="game-card" id="conecta4">
+        <h2>Conecta 4</h2>
+        <img src="img/conecta4.png" alt="Conecta 4">
+        <button>Jugar</button>
+      </div>
+      
+      <!-- Tarjeta de Gato -->
+      <div class="game-card" id="gato">
+        <h2>Gato</h2>
+        <img src="img/gato.png" alt="Gato">
+        <button>Jugar</button>
+      </div>
+      
+      <!-- Tarjeta de Serpientes y Escaleras -->
+      <div class="game-card" id="serpientes">
+        <h2>Serpientes y Escaleras</h2>
+        <img src="img/SyE.png" alt="Serpientes y Escaleras">
+        <button>Jugar</button>
+      </div>
+      
+      <!-- Tarjeta de Preguntas y Retos -->
+      <div class="game-card" id="preguntas">
+        <h2>Preguntas y Retos</h2>
+        <img src="img/VoR.png" alt="Preguntas y Retos">
+        <button>Jugar</button>
+      </div>
+
+      <!-- Tarjeta de Piedra, Papel o Tijera -->
+      <div class="game-card" id="piedra-papel">
+        <h2>Piedra, Papel o Tijera</h2>
+        <img src="img/P,P,T.png" alt="Piedra, Papel o Tijera">
+        <button>Jugar</button>
+      </div>
+
+      <!-- Tarjeta de Buscaminas -->
+      <div class="game-card" id="buscaminas">
+        <h2>Buscaminas</h2>
+        <img src="img/minas.png" alt="Buscaminas">
+        <button>Jugar</button>
+      </div>
+
+      <!-- Tarjeta de Tetrix -->
+      <div class="game-card" id="tetrix">
+        <h2>Tetrix</h2>
+        <img src="img/Tetris.png" alt="Tetrix">
+        <button>Jugar</button>
+      </div>
+
+      <!-- Tarjeta de Ahorcado -->
+      <div class="game-card" id="ahorcado">
+        <h2>Ahorcado</h2>
+        <img src="img/ahorcado.png" alt="Ahorcado">
+        <button>Jugar</button>
+      </div>
+
+      <!-- Tarjeta de Memoria -->
+      <div class="game-card" id="memoria">
+        <h2>Memoria</h2>
+        <img src="img/memoria.png" alt="Memoria">
+        <button>Jugar</button>
+      </div>
+
+      <!-- Tarjeta de topo  -->
+      <div class="game-card" id="topo">
+        <h2>Golpea al Zombie</h2>
+        <img src="img/topo.jpg" alt="topo">
+        <button>Jugar</button>
+      </div>
+    </section>
+
+    <div id="no-results" style="display:none; margin-top: 20px;">No se encontraron juegos.</div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

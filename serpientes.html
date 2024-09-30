@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serpientes y Escaleras</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #282828;
+            color: #00C1D4;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .player-input {
+            margin-bottom: 20px;
+        }
+
+        .dice {
+            margin: 10px 0;
+            font-size: 24px;
+        }
+
+        #board {
+            display: grid;
+            grid-template-columns: repeat(10, 50px);
+            grid-template-rows: repeat(10, 50px);
+            gap: 2px;
+            margin-bottom: 20px;
+        }
+
+        .cell {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #444444;
+            border: 1px solid #333;
+            font-size: 16px;
+        }
+
+        /* Colores para las escaleras */
+        .ladder {
+            background-color: lightblue; /* Color frío */
+        }
+
+        .ladder1 {
+            background-color: #A8D3FF; /* Color celeste claro */
+        }
+
+        .ladder2 {
+            background-color: #007BB8; /* Color celeste oscuro */
+        }
+
+        .ladder3 {
+            background-color: #005B99; /* Color azul */
+        }
+
+        /* Colores para las serpientes */
+        .snake {
+            background-color: lightcoral; /* Color cálido */
+        }
+
+        .snake1 {
+            background-color: #FFB6C1; /* Color rosa claro */
+        }
+
+        .snake2 {
+            background-color: #FF69B4; /* Color rosa */
+        }
+
+        .snake3 {
+            background-color: #FF0000; /* Color rojo */
+        }
+
+        .player {
+            background-color: rgb(76, 0, 255);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Serpientes y Escaleras</h1>
+    <div class="player-input">
+        <label for="playerCount">Número de jugadores (1-4):</label>
+        <input type="number" id="playerCount" min="1" max="4" value="2">
+        <button id="startGame">Iniciar Juego</button>
+    </div>
+
+    <div id="board" style="display: none;"></div>
+    <button id="rollDice" style="display: none;">Lanzar Dado</button>
+    <div class="dice" id="diceResult" style="display: none;"></div>
+    <div class="message" id="message"></div>
+
+    <script>
+        const startGameBtn = document.getElementById('startGame');
+        const playerCountInput = document.getElementById('playerCount');
+        const board = document.getElementById('board');
+        const rollDiceBtn = document.getElementById('rollDice');
+        const diceResultDisplay = document.getElementById('diceResult');
+        const messageDisplay = document.getElementById('message');
+
+        let players = [];
+        let currentPlayerIndex = 0;
+        const totalCells = 100;
+        const snakeAndLadderPositions = {
+            // Escaleras
+            4: 26,   // Escalera 1
+            21: 44,  // Escalera 2
+            50: 77,  // Escalera 3
+            // Serpientes
+            55: 45,  // Serpiente 1
+            73: 15,  // Serpiente 2
+            97: 33   // Serpiente 3
+        };
+
+        function createBoard() {
+            board.innerHTML = '';
+            for (let i = totalCells; i >= 1; i--) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.textContent = i;
+                board.appendChild(cell);
+            }
+            board.style.display = 'grid';
+
+            renderSnakesAndLadders();
+            renderPlayers();
+        }
+
+        function renderSnakesAndLadders() {
+            // Asignar colores a las casillas de escaleras
+            const ladders = {
+                4: 'ladder1',
+                26: 'ladder1',
+                21: 'ladder2',
+                44: 'ladder2',
+                50: 'ladder3',
+                77: 'ladder3'
+            };
+
+            // Asignar colores a las casillas de serpientes
+            const snakes = {
+                55: 'snake1',
+                45: 'snake1',
+                73: 'snake2',
+                15: 'snake2',
+                97: 'snake3',
+                33: 'snake3'
+            };
+
+            for (let key in ladders) {
+                const cell = document.querySelector(`.cell:nth-child(${totalCells - key + 1})`);
+                cell.classList.add(ladders[key]);
+            }
+
+            for (let key in snakes) {
+                const cell = document.querySelector(`.cell:nth-child(${totalCells - key + 1})`);
+                cell.classList.add(snakes[key]);
+            }
+        }
+
+        function renderPlayers() {
+            players.forEach((player, index) => {
+                const playerCell = document.querySelector(`.cell:nth-child(${totalCells - player.position + 1})`);
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'player';
+                playerDiv.textContent = index + 1; // Mostrar el número del jugador
+                playerCell.appendChild(playerDiv);
+            });
+        }
+
+        function movePlayer() {
+            const currentPlayer = players[currentPlayerIndex];
+            const diceRoll = Math.floor(Math.random() * 6) + 1; // Generar un número aleatorio entre 1 y 6
+            diceResultDisplay.textContent = `Jugador ${currentPlayerIndex + 1} lanzó: ${diceRoll}`;
+            diceResultDisplay.style.display = 'block';
+
+            currentPlayer.position += diceRoll;
+            if (currentPlayer.position > totalCells) {
+                currentPlayer.position = totalCells; // No se puede pasar del 100
+            }
+
+            // Verificar si hay una serpiente o escalera
+            if (snakeAndLadderPositions[currentPlayer.position]) {
+                currentPlayer.position = snakeAndLadderPositions[currentPlayer.position];
+            }
+
+            messageDisplay.textContent = `Jugador ${currentPlayerIndex + 1} se mueve a la casilla ${currentPlayer.position}`;
+            updatePlayerPositions();
+
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.length; // Cambia al siguiente jugador
+        }
+
+        function updatePlayerPositions() {
+            const playerCells = document.querySelectorAll('.player');
+            playerCells.forEach(cell => cell.remove()); // Elimina las fichas de los jugadores
+
+            renderPlayers(); // Renderiza las fichas de nuevo
+        }
+
+        startGameBtn.addEventListener('click', () => {
+            const playerCount = parseInt(playerCountInput.value);
+            players = Array.from({ length: playerCount }, (_, index) => ({ position: 1 })); // Inicia en la casilla 1
+            createBoard();
+            rollDiceBtn.style.display = 'block';
+            startGameBtn.style.display = 'none';
+        });
+
+        rollDiceBtn.addEventListener('click', movePlayer);
+    </script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golpea al Topo</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #282828;
+            font-family: Arial, sans-serif;
+            flex-direction: column;
+            color: #00c1d4;
+        }
+
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 150px);
+            grid-gap: 20px;
+        }
+
+        .hole {
+            width: 150px;
+            height: 150px;
+            background-color: #00c1d4;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 60px;
+        }
+
+        .mole {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: top 0.5s ease;
+        }
+
+        .up {
+            top: 20%;
+        }
+
+        #score {
+            font-size: 2em;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div>
+        <div id="score">Puntuación: 0</div>
+        <div id="game-board">
+            <div class="hole" data-index="0"><div class="mole">🧟‍♂️</div></div>
+            <div class="hole" data-index="1"><div class="mole">🧟‍♂️</div></div>
+            <div class="hole" data-index="2"><div class="mole">🧟‍♂️</div></div>
+            <div class="hole" data-index="3"><div class="mole">🧟‍♂️</div></div>
+            <div class="hole" data-index="4"><div class="mole">🧟‍♂️</div></div>
+            <div class="hole" data-index="5"><div class="mole">🧟‍♂️</div></div>
+            <div class="hole" data-index="6"><div class="mole">🧟‍♂️</div></div>
+            <div class="hole" data-index="7"><div class="mole">🧟‍♂️</div></div>
+            <div class="hole" data-index="8"><div class="mole">🧟‍♂️</div></div>
+        </div>
+        <button id="start-btn">Iniciar Juego</button>
+    </div>
+
+    <script>
+        const holes = document.querySelectorAll('.hole');
+        const scoreBoard = document.getElementById('score');
+        const startButton = document.getElementById('start-btn');
+        let lastHole;
+        let timeUp = false;
+        let score = 0;
+        let gameTime = 20000; // 20 segundos
+        let timer;
+
+        function randomTime(min, max) {
+            return Math.round(Math.random() * (max - min) + min);
+        }
+
+        function randomHole(holes) {
+            const idx = Math.floor(Math.random() * holes.length);
+            const hole = holes[idx];
+            if (hole === lastHole) {
+                return randomHole(holes);
+            }
+            lastHole = hole;
+            return hole;
+        }
+
+        function showMole() {
+            const time = randomTime(700, 1500); // Más lento
+            const hole = randomHole(holes);
+            const mole = hole.querySelector('.mole');
+            mole.classList.add('up');
+            setTimeout(() => {
+                mole.classList.remove('up');
+                if (!timeUp) showMole();
+            }, time);
+        }
+
+        function startGame() {
+            scoreBoard.textContent = 'Puntuación: 0';
+            timeUp = false;
+            score = 0;
+            showMole();
+            startButton.disabled = true; // Desactivar el botón mientras el juego está activo
+            timer = setTimeout(() => {
+                timeUp = true;
+                startButton.disabled = false; // Activar el botón nuevamente
+                alert(`Juego terminado! Puntuación final: ${score}`);
+            }, gameTime);
+        }
+
+        function bonk(e) {
+            if (!e.isTrusted) return; // Previene hacer trampa
+            score++;
+            e.target.classList.remove('up');
+            scoreBoard.textContent = `Puntuación: ${score}`; // Actualiza correctamente el puntaje
+        }
+
+        holes.forEach(hole => hole.addEventListener('click', function(e) {
+            if (e.target.classList.contains('mole')) {
+                bonk(e);
+            }
+        }));
+
+        startButton.addEventListener('click', startGame);
+    </script>
+
+</body>
+</html>

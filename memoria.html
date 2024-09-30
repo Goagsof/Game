@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Memoria</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #282828;
+            color: #00c1d4;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            grid-template-rows: repeat(4, 100px);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .card {
+            width: 100px;
+            height: 100px;
+            background-color: #0196a3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: transparent;
+            font-size: 24px;
+            transition: background-color 0.3s;
+        }
+
+        .card.flipped {
+            background-color: #00eaff;
+            color: #000;
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        .reset {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Juego de Memoria</h1>
+    <div class="board" id="board"></div>
+    <div class="message" id="message"></div>
+    <button class="reset" id="resetBtn">Reiniciar</button>
+
+    <script>
+        const boardElement = document.getElementById('board');
+        const messageDisplay = document.getElementById('message');
+        const resetBtn = document.getElementById('resetBtn');
+        let cards = [];
+        let cardValues = ['🍎', '🍌', '🍇', '🍉', '🍊', '🍒', '🍓', '🍑'];
+        let flippedCards = [];
+        let matchedCards = [];
+        let isBoardLocked = false;
+
+        function createBoard() {
+            cards = [...cardValues, ...cardValues]; // Duplicar los valores
+            shuffle(cards); // Mezclar las cartas
+            boardElement.innerHTML = '';
+            cards.forEach((value, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('card');
+                cardElement.dataset.index = index;
+                cardElement.addEventListener('click', flipCard);
+                boardElement.appendChild(cardElement);
+            });
+            resetBtn.style.display = 'none';
+            messageDisplay.textContent = '¡Haz coincidir las cartas!';
+        }
+
+        function flipCard() {
+            if (isBoardLocked) return;
+            const card = this;
+            const cardIndex = card.dataset.index;
+
+            if (flippedCards.includes(cardIndex) || matchedCards.includes(cardIndex)) return;
+
+            card.classList.add('flipped');
+            card.textContent = cards[cardIndex];
+            flippedCards.push(cardIndex);
+
+            if (flippedCards.length === 2) {
+                isBoardLocked = true;
+                setTimeout(checkForMatch, 1000);
+            }
+        }
+
+        function checkForMatch() {
+            const [firstCardIndex, secondCardIndex] = flippedCards;
+            if (cards[firstCardIndex] === cards[secondCardIndex]) {
+                matchedCards.push(firstCardIndex, secondCardIndex);
+                messageDisplay.textContent = '¡Coincidencia!';
+            } else {
+                const firstCard = document.querySelector(`.card[data-index="${firstCardIndex}"]`);
+                const secondCard = document.querySelector(`.card[data-index="${secondCardIndex}"]`);
+                firstCard.classList.remove('flipped');
+                secondCard.classList.remove('flipped');
+                firstCard.textContent = '';
+                secondCard.textContent = '';
+                messageDisplay.textContent = 'No hay coincidencia. Intenta de nuevo.';
+            }
+            flippedCards = [];
+            isBoardLocked = false;
+
+            if (matchedCards.length === cards.length) {
+                messageDisplay.textContent = '¡Felicidades! Has encontrado todas las coincidencias.';
+                resetBtn.style.display = 'block';
+            }
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        resetBtn.addEventListener('click', resetGame);
+
+        function resetGame() {
+            matchedCards = [];
+            flippedCards = [];
+            isBoardLocked = false;
+            createBoard();
+        }
+
+        // Inicializar el juego
+        resetGame();
+    </script>
+</body>
+</html>
+

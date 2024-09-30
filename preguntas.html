@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verdad o Reto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #282828;
+            color: #00c1d4;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .options {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .option {
+            margin: 0 15px;
+            padding: 10px 20px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #006c75;
+            transition: background-color 0.3s;
+        }
+
+        .option:hover {
+            background-color: #e0e0e0;
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        .reset {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Verdad o Reto</h1>
+    <div class="options">
+        <div class="option" id="verdadBtn">🗣️ Verdad</div>
+        <div class="option" id="retoBtn">🎭 Reto</div>
+    </div>
+    <div class="message" id="message"></div>
+    <button class="reset" id="resetBtn">Reiniciar</button>
+
+    <script>
+        const verdadBtn = document.getElementById('verdadBtn');
+        const retoBtn = document.getElementById('retoBtn');
+        const messageDisplay = document.getElementById('message');
+        const resetBtn = document.getElementById('resetBtn');
+
+        const preguntas = [
+            "¿Cuál es tu mayor miedo?",
+            "¿Cuál ha sido tu momento más vergonzoso?",
+            "¿Quién fue tu primer amor?",
+            "¿Cuál es el secreto que no le has contado a nadie?",
+            "¿Cuál es tu comida favorita?",
+            "¿Qué es lo más loco que has hecho?",
+            "¿Qué harías si fueras invisible por un día?",
+            "¿A quién te gustaría conocer y por qué?",
+            "¿Cuál es tu sueño más grande?",
+            "¿Qué es lo que más valoras en una amistad?"
+        ];
+
+        const retos = [
+            "Canta una canción a todo pulmón.",
+            "Baila como si nadie te estuviera mirando.",
+            "Imita a alguien hasta que te adivinen.",
+            "Haz 10 flexiones.",
+            "Envía un mensaje de texto a un amigo y dile que lo quieres.",
+            "Haz una cara graciosa y manténla durante 10 segundos.",
+            "Imita a un animal de tu elección.",
+            "Tómate una selfie haciendo una cara graciosa.",
+            "Escribe el nombre de tu crush en un papel y muéstralo.",
+            "Recita el abecedario al revés."
+        ];
+
+        verdadBtn.addEventListener('click', () => {
+            const preguntaAleatoria = getRandomElement(preguntas);
+            displayResult("Verdad", preguntaAleatoria);
+        });
+
+        retoBtn.addEventListener('click', () => {
+            const retoAleatorio = getRandomElement(retos);
+            displayResult("Reto", retoAleatorio);
+        });
+
+        function getRandomElement(array) {
+            const randomIndex = Math.floor(Math.random() * array.length);
+            return array[randomIndex];
+        }
+
+        function displayResult(tipo, resultado) {
+            messageDisplay.textContent = `Elegiste: ${tipo}. ${resultado}`;
+            resetBtn.style.display = 'block';
+        }
+
+        resetBtn.addEventListener('click', resetGame);
+
+        function resetGame() {
+            messageDisplay.textContent = '';
+            resetBtn.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

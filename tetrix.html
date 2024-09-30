@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #222;
+            color: white;
+            font-family: Arial, sans-serif;
+            color: #00c1d4;
+        }
+
+        #tetris {
+            display: grid;
+            grid-template-columns: repeat(10, 30px);
+            grid-template-rows: repeat(20, 30px);
+            gap: 1px;
+            background-color: #444;
+        }
+
+        .cell {
+            width: 30px;
+            height: 30px;
+            background-color: #000;
+        }
+
+        .filled {
+            background-color: #00c1d4;
+        }
+
+        #score {
+            margin-top: 20px;
+            font-size: 24px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div>
+        <div id="tetris"></div>
+        <div id="score">Puntuación: 0</div>
+        <button id="startGame">Iniciar Juego</button>
+    </div>
+
+    <script>
+        const board = document.getElementById('tetris');
+        const scoreDisplay = document.getElementById('score');
+        const startGameButton = document.getElementById('startGame');
+        
+        const ROWS = 20;
+        const COLS = 10;
+        const boardState = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+        let score = 0;
+        let currentPiece;
+        let currentPosition = { x: 0, y: 0 };
+        let dropInterval;
+
+        const pieces = [
+            [[1, 1, 1, 1]], // I
+            [[1, 1, 1], [0, 1, 0]], // T
+            [[1, 1, 0], [0, 1, 1]], // Z
+            [[0, 1, 1], [1, 1, 0]], // S
+            [[1, 1], [1, 1]], // O
+            [[1, 1, 1], [1, 0, 0]], // L
+            [[1, 1, 1], [0, 0, 1]] // J
+        ];
+
+        function startGame() {
+            board.innerHTML = '';
+            boardState.forEach(row => row.fill(0));
+            score = 0;
+            updateScore();
+            createBoard();
+            createPiece();
+            dropInterval = setInterval(dropPiece, 1000);
+        }
+
+        function createBoard() {
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    board.appendChild(cell);
+                }
+            }
+        }
+
+        function createPiece() {
+            const randomIndex = Math.floor(Math.random() * pieces.length);
+            currentPiece = pieces[randomIndex];
+            currentPosition = { x: Math.floor(COLS / 2) - Math.floor(currentPiece[0].length / 2), y: 0 };
+
+            if (collides()) {
+                clearInterval(dropInterval);
+                alert('Juego Terminado. Tu puntuación fue: ' + score);
+            }
+        }
+
+        function collides(offsetX = 0, offsetY = 0) {
+            for (let r = 0; r < currentPiece.length; r++) {
+                for (let c = 0; c < currentPiece[0].length; c++) {
+                    if (currentPiece[r][c] > 0) {
+                        const newX = currentPosition.x + c + offsetX;
+                        const newY = currentPosition.y + r + offsetY;
+
+                        if (newX < 0 || newX >= COLS || newY >= ROWS || (newY >= 0 && boardState[newY][newX] > 0)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        function mergePiece() {
+            for (let r = 0; r < currentPiece.length; r++) {
+                for (let c = 0; c < currentPiece[0].length; c++) {
+                    if (currentPiece[r][c] > 0) {
+                        boardState[currentPosition.y + r][currentPosition.x + c] = currentPiece[r][c];
+                    }
+                }
+            }
+            removeFullRows();
+            createPiece();
+        }
+
+        function removeFullRows() {
+            for (let r = ROWS - 1; r >= 0; r--) {
+                if (boardState[r].every(cell => cell > 0)) {
+                    boardState.splice(r, 1);
+                    boardState.unshift(Array(COLS).fill(0));
+                    score += 100;
+                    updateScore();
+                }
+            }
+        }
+
+        function dropPiece() {
+            if (!collides(0, 1)) {
+                currentPosition.y++;
+            } else {
+                mergePiece();
+            }
+            draw();
+        }
+
+        function draw() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach((cell, index) => {
+                const row = Math.floor(index / COLS);
+                const col = index % COLS;
+                cell.classList.remove('filled');
+
+                if (boardState[row][col] > 0) {
+                    cell.classList.add('filled');
+                }
+            });
+
+            for (let r = 0; r < currentPiece.length; r++) {
+                for (let c = 0; c < currentPiece[0].length; c++) {
+                    if (currentPiece[r][c] > 0) {
+                        const drawX = currentPosition.x + c;
+                        const drawY = currentPosition.y + r;
+                        if (drawY >= 0) {
+                            cells[drawY * COLS + drawX].classList.add('filled');
+                        }
+                    }
+                }
+            }
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowLeft' && !collides(-1, 0)) {
+                currentPosition.x--;
+            } else if (event.key === 'ArrowRight' && !collides(1, 0)) {
+                currentPosition.x++;
+            } else if (event.key === 'ArrowDown') {
+                dropPiece();
+            } else if (event.key === 'ArrowUp') {
+                rotatePiece();
+            }
+            draw();
+        });
+
+        function rotatePiece() {
+            const rotatedPiece = currentPiece[0].map((_, index) => currentPiece.map(row => row[index]).reverse());
+            if (!collides(0, 0, rotatedPiece)) {
+                currentPiece = rotatedPiece;
+            }
+        }
+
+        function updateScore() {
+            scoreDisplay.textContent = 'Puntuación: ' + score;
+        }
+
+        startGameButton.addEventListener('click', startGame);
+    </script>
+</body>
+</html>

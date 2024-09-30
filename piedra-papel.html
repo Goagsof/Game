@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piedra, Papel o Tijera</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #282828;
+            color: #00c1d4;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .options {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .option {
+            margin: 0 15px;
+            padding: 10px 20px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #004e55;
+            transition: background-color 0.3s;
+        }
+
+        .option:hover {
+            background-color: #e0e0e0;
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        .reset {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Piedra, Papel o Tijera</h1>
+    <div class="options">
+        <div class="option" data-choice="piedra">✊ Piedra</div>
+        <div class="option" data-choice="papel">✋ Papel</div>
+        <div class="option" data-choice="tijera">✌ Tijera</div>
+    </div>
+    <div class="message" id="message"></div>
+    <button class="reset" id="resetBtn">Reiniciar</button>
+
+    <script>
+        const options = document.querySelectorAll('.option');
+        const messageDisplay = document.getElementById('message');
+        const resetBtn = document.getElementById('resetBtn');
+
+        options.forEach(option => {
+            option.addEventListener('click', playGame);
+        });
+
+        function playGame() {
+            const playerChoice = this.dataset.choice;
+            const computerChoice = getComputerChoice();
+            const result = determineWinner(playerChoice, computerChoice);
+            displayResult(playerChoice, computerChoice, result);
+        }
+
+        function getComputerChoice() {
+            const choices = ['piedra', 'papel', 'tijera'];
+            const randomIndex = Math.floor(Math.random() * choices.length);
+            return choices[randomIndex];
+        }
+
+        function determineWinner(player, computer) {
+            if (player === computer) {
+                return 'Empate';
+            } else if (
+                (player === 'piedra' && computer === 'tijera') ||
+                (player === 'tijera' && computer === 'papel') ||
+                (player === 'papel' && computer === 'piedra')
+            ) {
+                return '¡Ganaste!';
+            } else {
+                return 'Perdiste. La computadora ganó.';
+            }
+        }
+
+        function displayResult(player, computer, result) {
+            messageDisplay.textContent = `Tú elegiste: ${player}, Computadora eligió: ${computer}. ${result}`;
+            resetBtn.style.display = 'block';
+        }
+
+        resetBtn.addEventListener('click', resetGame);
+
+        function resetGame() {
+            messageDisplay.textContent = '';
+            resetBtn.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

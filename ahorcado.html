@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego del Ahorcado</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #282828;
+            color: white;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #00c1d4;
+        }
+
+        .word {
+            font-size: 32px;
+            letter-spacing: 10px;
+            margin: 20px 0;
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #00c1d4;
+        }
+
+        .attempts {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        .letters {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .letter {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 5px;
+            background-color: #00c1d4;
+            border: none;
+            border-radius: 5px;
+            color: #282828;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .letter:hover {
+            background-color: #008a9e;
+        }
+
+        .letter:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+
+        .reset, .back {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #00c1d4;
+            border: none;
+            color: #282828;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .reset:hover, .back:hover {
+            background-color: #008a9e;
+        }
+
+        .reset:disabled, .back:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Juego del Ahorcado</h1>
+    <div class="word" id="word"></div>
+    <div class="attempts" id="attempts"></div>
+    <div class="message" id="message"></div>
+    <div class="letters" id="letters"></div>
+    <button class="reset" id="resetBtn">Reiniciar</button>
+    <button class="back" id="backBtn">Regresar</button>
+
+    <script>
+        const words = ["javascript", "desarrollo", "programacion", "ahorcado", "juegos", "computadora"];
+        let chosenWord = '';
+        let guessedLetters = [];
+        let attempts = 6;
+
+        const wordDisplay = document.getElementById('word');
+        const attemptsDisplay = document.getElementById('attempts');
+        const messageDisplay = document.getElementById('message');
+        const lettersContainer = document.getElementById('letters');
+        const resetBtn = document.getElementById('resetBtn');
+        const backBtn = document.getElementById('backBtn');
+
+        function chooseRandomWord() {
+            const randomIndex = Math.floor(Math.random() * words.length);
+            chosenWord = words[randomIndex];
+        }
+
+        function displayWord() {
+            wordDisplay.textContent = chosenWord.split('').map(letter => (guessedLetters.includes(letter) ? letter : '_')).join(' ');
+        }
+
+        function displayAttempts() {
+            attemptsDisplay.textContent = `Intentos restantes: ${attempts}`;
+        }
+
+        function checkGameOver() {
+            if (attempts <= 0) {
+                messageDisplay.textContent = `¡Perdiste! La palabra era "${chosenWord}".`;
+                lettersContainer.style.display = 'none';
+                resetBtn.style.display = 'inline-block';
+            } else if (chosenWord.split('').every(letter => guessedLetters.includes(letter))) {
+                messageDisplay.textContent = '¡Ganaste!';
+                lettersContainer.style.display = 'none';
+                resetBtn.style.display = 'inline-block';
+            }
+        }
+
+        function handleLetterClick(event) {
+            const clickedLetter = event.target.textContent;
+            if (!guessedLetters.includes(clickedLetter)) {
+                guessedLetters.push(clickedLetter);
+
+                if (!chosenWord.includes(clickedLetter)) {
+                    attempts--;
+                }
+
+                event.target.disabled = true; // Deshabilitar letra clickeada
+                displayWord();
+                displayAttempts();
+                checkGameOver();
+            }
+        }
+
+        function createLetterButtons() {
+            const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+            lettersContainer.innerHTML = '';
+            for (let letter of alphabet) {
+                const letterButton = document.createElement('button');
+                letterButton.classList.add('letter');
+                letterButton.textContent = letter;
+                letterButton.addEventListener('click', handleLetterClick);
+                lettersContainer.appendChild(letterButton);
+            }
+        }
+
+        resetBtn.addEventListener('click', resetGame);
+
+        backBtn.addEventListener('click', function() {
+            window.location.href = 'index.html';  // Redirigir al index
+        });
+
+        function resetGame() {
+            chosenWord = '';
+            guessedLetters = [];
+            attempts = 6;
+            messageDisplay.textContent = '';
+            resetBtn.style.display = 'none';
+            lettersContainer.style.display = 'flex';
+            chooseRandomWord();
+            displayWord();
+            displayAttempts();
+            createLetterButtons();
+        }
+
+        // Inicializar el juego
+        resetGame();
+    </script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Conecta 4</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #282828; /* Color de fondo estándar */
+            color: #00c1d4; /* Color de texto estándar */
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(7, 60px);
+            grid-template-rows: repeat(6, 60px);
+            gap: 5px;
+            margin: 20px 0;
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            background-color: #fff; /* Fondo de las celdas en blanco */
+            border: 2px solid #00c1d4; /* Bordes en color estándar */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .red {
+            background-color: red; /* Color para el jugador rojo */
+        }
+
+        .yellow {
+            background-color: yellow; /* Color para el jugador amarillo */
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        .reset {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            display: none;
+            background-color: #00c1d4; /* Fondo del botón de reinicio */
+            color: #282828; /* Color del texto del botón de reinicio */
+            border: none; /* Sin borde */
+            border-radius: 5px; /* Bordes redondeados */
+        }
+
+        .reset:hover {
+            background-color: #0092a4; /* Color del botón al pasar el mouse */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Juego de Conecta 4</h1>
+    <div class="grid" id="grid"></div>
+    <div class="message" id="message"></div>
+    <button class="reset" id="resetBtn">Reiniciar</button>
+
+    <script>
+        const rows = 6;
+        const cols = 7;
+        let board = [];
+        let currentPlayer = 'red'; // 'red' o 'yellow'
+        let gameOver = false;
+
+        const gridElement = document.getElementById('grid');
+        const messageDisplay = document.getElementById('message');
+        const resetBtn = document.getElementById('resetBtn');
+
+        function createBoard() {
+            board = Array.from({ length: rows }, () => Array(cols).fill(null));
+            renderBoard();
+        }
+
+        function renderBoard() {
+            gridElement.innerHTML = '';
+            board.forEach((row, rowIndex) => {
+                row.forEach((cell, colIndex) => {
+                    const cellElement = document.createElement('div');
+                    cellElement.classList.add('cell');
+                    cellElement.dataset.col = colIndex; // Almacena el índice de la columna
+                    if (cell) {
+                        cellElement.classList.add(cell);
+                    }
+                    cellElement.addEventListener('click', () => handleCellClick(colIndex));
+                    gridElement.appendChild(cellElement);
+                });
+            });
+        }
+
+        function handleCellClick(col) {
+            if (gameOver) return;
+
+            for (let row = rows - 1; row >= 0; row--) {
+                if (!board[row][col]) {
+                    board[row][col] = currentPlayer;
+                    if (checkWin(row, col)) {
+                        messageDisplay.textContent = `${currentPlayer.charAt(0).toUpperCase() + currentPlayer.slice(1)} ganó!`;
+                        gameOver = true;
+                    } else {
+                        currentPlayer = currentPlayer === 'red' ? 'yellow' : 'red';
+                    }
+                    renderBoard();
+                    return;
+                }
+            }
+        }
+
+        function checkWin(row, col) {
+            return (
+                checkDirection(row, col, 1, 0) ||  // Horizontal
+                checkDirection(row, col, 0, 1) ||  // Vertical
+                checkDirection(row, col, 1, 1) ||  // Diagonal /
+                checkDirection(row, col, 1, -1)     // Diagonal \
+            );
+        }
+
+        function checkDirection(row, col, rowDir, colDir) {
+            let count = 0;
+
+            for (let i = -3; i <= 3; i++) {
+                const r = row + i * rowDir;
+                const c = col + i * colDir;
+                if (r >= 0 && r < rows && c >= 0 && c < cols && board[r][c] === currentPlayer) {
+                    count++;
+                    if (count === 4) {
+                        return true;
+                    }
+                } else {
+                    count = 0; // Reiniciar el conteo si no es el mismo jugador
+                }
+            }
+            return false;
+        }
+
+        resetBtn.addEventListener('click', resetGame);
+
+        function resetGame() {
+            gameOver = false;
+            currentPlayer = 'red';
+            messageDisplay.textContent = '';
+            resetBtn.style.display = 'none';
+            createBoard();
+        }
+
+        // Inicializar el juego
+        resetGame();
+    </script>
+</body>
+</html>
